@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Robux Generator</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      height: 100%; width: 100%; font-family: Arial, sans-serif;
+      background: #111; color: #fff;
+      display: flex; flex-direction: column;
+    }
+    header { padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; background: #000; font-size: 12px; }
+    header .left { display: flex; align-items: center; gap: 10px; }
+    header .logo { width: 40px; height: 40px; border-radius: 6px; background: #fff; color: #000; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+    header .right { text-align: right; font-size: 12px; display:flex; flex-direction:column; gap:4px; align-items:flex-end; }
+    main { flex: 1; display: flex; justify-content: center; align-items: center; padding: 20px; }
+    .card { background: #000; border-radius: 16px; padding: 24px; max-width: 400px; width: 100%; box-shadow: 0 8px 20px rgba(0,0,0,0.5); }
+    .title { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+    h2 { font-size: 18px; font-weight: bold; }
+    p.desc { font-size: 13px; opacity: 0.7; margin-top: 4px; }
+    label { font-size: 12px; text-transform: uppercase; opacity: 0.8; }
+    input, select { margin-top: 6px; margin-bottom: 14px; width: 100%; padding: 10px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.3); background: transparent; color: #fff; }
+    input::placeholder { color: rgba(255,255,255,0.5); }
+    .btn { width: 100%; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.2s; margin-bottom: 10px; }
+    .btn-main { background: #4ade80; color: #000; }
+    .btn-main:hover { opacity: 0.9; }
+    .btn-disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn-outline { background: transparent; color: #fff; border: 1px solid rgba(255,255,255,0.4); }
+    .error { color: #f87171; font-size: 12px; margin-top: -8px; margin-bottom: 8px; display:none; }
+    .note { font-size: 11px; opacity: 0.7; background: rgba(255,255,255,0.05); padding: 10px; border-radius: 6px; margin-top: 16px; }
+    footer { padding: 10px; text-align: center; font-size: 11px; color: #aaa; background: #000; }
+    .spinner { border: 3px solid rgba(255,255,255,0.3); border-top: 3px solid #fff; border-radius: 50%; width: 16px; height: 16px; animation: spin 1s linear infinite; display: inline-block; vertical-align: middle; margin-right: 6px; }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: flex; justify-content: center; align-items: center; z-index: 999; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
+    .modal.show { opacity: 1; pointer-events: auto; backdrop-filter: blur(4px); }
+    .modal-content { background: #1c1c1c; padding: 20px; border-radius: 10px; width: 90%; max-width: 900px; position: relative; }
+    .close-btn { position: absolute; top: 12px; right: 12px; background: transparent; border: none; color: #fff; font-size: 20px; cursor: pointer; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { text-align: left; padding: 10px; border-bottom: 1px solid #333; }
+    .muted { opacity: 0.7; font-size: 13px; }
+    .robux-balance { display: inline-flex; align-items: center; gap: 4px; vertical-align: middle; }
+    .robux-balance img { height: 16px; width: auto; display: block; }
+    .robux-balance span { line-height: 1; }
+    select { appearance: none; -webkit-appearance: none; -moz-appearance: none; background: #111 url("data:image/svg+xml;utf8,<svg fill='white' height='12' viewBox='0 0 24 24' width='12' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>") no-repeat; background-position: right 8px center; background-size: 14px; padding-right: 32px; }
+    #progressContainer { display: none; margin-top: 10px; }
+    #progressBar { height: 8px; width: 0%; background: linear-gradient(to right, #4ade80, #22c55e); border-radius: 4px; transition: width 0.2s; }
+    #progressText { font-size: 12px; margin-top: 4px; text-align: center; }
+    .limit-info { font-size: 12px; opacity: 0.8; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="left">
+      <div class="logo">★</div>
+      <div><strong>ROBUX GENERATOR</strong><br><span style="opacity:0.7;">UI mock only</span></div>
+    </div>
+    <div class="right">
+      <div>Version: 1.0.31</div>
+      <div style="opacity:0.6;">Connected</div>
+      <div class="limit-info" id="limitInfo">Remaining: 500/500 today</div>
+    </div>
+  </header>
+
+  <main>
+    <div class="card">
+      <div class="title">
+        <img src="robux.png" alt="Robux" style="width:32px; height:32px; object-fit:contain;">
+        <div>
+          <h2>Generate Robux</h2>
+          <p class="desc">UI FOR portfolio. <b>DO NOT SPAM GENERATE OR YOU WILL GOT BANNED!</b></p>
+        </div>
+      </div>
+      <label>Username</label>
+      <input type="text" id="username" placeholder="username_roblox">
+      <p id="error" class="error"></p>
+      <label>Robux Packed</label>
+      <select id="amount">
+        <option value="14">14</option>
+        <option value="28">28</option>
+        <option value="50">50</option>
+        <option value="110">110</option>
+        <option value="225">225</option>
+        <option value="300">300</option>
+        <option value="500">500</option>
+        <option value="1000">1000</option>
+        <option value="2000">2000</option>
+        <option value="5000">5000</option>
+        <option value="11000">11000</option>
+      </select>
+      <button class="btn btn-main" id="generateBtn">GENERATE</button>
+      <div id="progressContainer">
+        <div id="progressBar"></div>
+        <div id="progressText">0%</div>
+      </div>
+      <div class="note">
+        <strong>Notice:</strong>
+        <ul style="margin-top:6px;margin-left:18px;list-style:disc;">
+          <li>It's made by @Kloonami and the robux is illegal, fake account won't get robux!</li>
+          <li>Do not use to scam or spam!</li>
+        </ul>
+      </div>
+    </div>
+  </main>
+
+  <footer>© UI Profit - The unofficial robux generate from Roblox</footer>
+
+  <div class="modal" id="transactionModal">
+    <div class="modal-content">
+      <button class="close-btn" onclick="closeModal()">✖</button>
+      <h2>My Transactions</h2>
+      <p id="modal-username" style="margin-top:6px; font-weight:bold;"></p>
+      <p class="muted">My Balance: <span id="modal-balance">0</span></p>
+      <div style="margin-top:20px;">
+        <label>Type of Transaction</label>
+        <select style="margin-left:10px;"><option>Summary</option></select>
+        <label style="margin-left:20px;">Date Range</label>
+        <select style="margin-left:10px;"><option>Past 7 Days</option><option>Past 14 Days</option><option selected>Past 30 Days</option><option>Past 1 Year</option><option>All</option></select>
+      </div>
+      <h3 style="margin-top:20px;">Summary</h3>
+      <table>
+        <tr><th colspan="2">Incoming Robux</th></tr>
+        <tr><td>Total</td><td id="modal-incoming"></td></tr>
+      </table>
+      <table>
+        <tr><th colspan="2">Outgoing Robux</th></tr>
+        <tr><td>Purchases</td><td id="modal-purchases">0</td></tr>
+        <tr><td>Total</td><td id="modal-outgoing">0</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    const STORAGE_KEY='robux_daily_limit_v1';
+    const STORAGE_TOTAL_KEY='robux_total_v1';
+    const DAILY_LIMIT=500;
+    const usernameInput=document.getElementById('username');
+    const amountSelect=document.getElementById('amount');
+    const generateBtn=document.getElementById('generateBtn');
+    const errorEl=document.getElementById('error');
+    const modal=document.getElementById('transactionModal');
+    const modalUsername=document.getElementById('modal-username');
+    const modalBalance=document.getElementById('modal-balance');
+    const modalIncoming=document.getElementById('modal-incoming');
+    const modalPurchases=document.getElementById('modal-purchases');
+    const modalOutgoing=document.getElementById('modal-outgoing');
+    const limitInfo=document.getElementById('limitInfo');
+    function validateUsername(name){const r=/^[a-zA-Z0-9_]{3,20}$/;return r.test(name)&&/[a-zA-Z]/.test(name)}
+    function renderRobux(value){return `<span class="robux-balance"><img src="robuxpay.png" alt="Robux"><span>${value}</span></span>`}
+    function todayString(){const d=new Date();return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`}
+    function loadLimit(){try{const r=localStorage.getItem(STORAGE_KEY);if(!r){const o={date:todayString(),total:0};localStorage.setItem(STORAGE_KEY,JSON.stringify(o));return o}const o=JSON.parse(r);return o.date!==todayString()?(localStorage.setItem(STORAGE_KEY,JSON.stringify({date:todayString(),total:0})),{date:todayString(),total:0}):o}catch(e){return{date:todayString(),total:0}}}
+    function saveLimit(o){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(o))}catch(e){}}
+    function getRemaining(){return Math.max(0,DAILY_LIMIT-(loadLimit().total||0))}
+    function addToDaily(v){const o=loadLimit();o.total=(o.total||0)+v;if(o.total>DAILY_LIMIT)o.total=DAILY_LIMIT;saveLimit(o);updateLimitUI()}
+    function updateLimitUI(){const o=loadLimit();const used=o.total||0;const rem=Math.max(0,DAILY_LIMIT-used);limitInfo.textContent=`Remaining: ${rem}/${DAILY_LIMIT} today`;if(rem<=0){generateBtn.classList.add('btn-disabled');generateBtn.disabled=true}else{generateBtn.classList.remove('btn-disabled');generateBtn.disabled=false}}
+    function loadTotal(){try{const r=localStorage.getItem(STORAGE_TOTAL_KEY);return r?JSON.parse(r):{totalRobux:0,totalIncoming:0,totalPurchases:0,totalOutgoing:0}}catch(e){return{totalRobux:0,totalIncoming:0,totalPurchases:0,totalOutgoing:0}}}
+    function saveTotal(o){try{localStorage.setItem(STORAGE_TOTAL_KEY,JSON.stringify(o))}catch(e){}}
+    let {totalRobux,totalIncoming,totalPurchases,totalOutgoing}=loadTotal();
+    function startProgress(username,amount){const bar=document.getElementById("progressBar");const text=document.getElementById("progressText");const container=document.getElementById("progressContainer");container.style.display="block";let progress=0;text.textContent="0%";bar.style.width="0%";function update(to,duration,callback){const from=progress;const diff=to-from;const stepTime=50;let current=0;const steps=Math.max(1,Math.round(duration/stepTime));const interval=setInterval(()=>{current++;const frac=current/steps;progress=Math.min(to,from+Math.round(frac*diff));bar.style.width=progress+"%";text.textContent=progress+"%";if(current>=steps||progress>=to){clearInterval(interval);progress=to;bar.style.width=progress+"%";text.textContent=progress+"%";callback&&callback()}},stepTime)}
+    update(30,3000,()=>{update(99,1000,()=>{update(100,1500,()=>{container.style.display="none";generateBtn.textContent="GENERATE";generateBtn.classList.remove("btn-disabled");generateBtn.disabled=false;totalRobux+=amount;totalIncoming+=amount;saveTotal({totalRobux,totalIncoming,totalPurchases,totalOutgoing});addToDaily(amount);modalUsername.textContent=username;modalBalance.innerHTML=renderRobux(totalRobux);modalIncoming.innerHTML=renderRobux(totalIncoming);modalPurchases.innerHTML=renderRobux(totalPurchases);modalOutgoing.innerHTML=renderRobux(totalOutgoing);modal.classList.add("show")})})})}
+    generateBtn.addEventListener('click',()=>{errorEl.style.display="none";const username=usernameInput.value.trim();const amount=parseInt(amountSelect.value,10);if(!username){errorEl.textContent="Username cannot be empty.";errorEl.style.display="block";return}if(!validateUsername(username)){errorEl.textContent="Invalid username.";errorEl.style.display="block";return}const rem=getRemaining();if(rem<=0){errorEl.textContent="Daily limit reached (500). Come back tommorrow.";errorEl.style.display="block";return}if(amount>rem){errorEl.textContent=`You only have ${rem} Robux left to generate today. Choose a smaller package.`;errorEl.style.display="block";return}generateBtn.textContent='PROCESSING...';generateBtn.classList.add("btn-disabled");generateBtn.disabled=true;startProgress(username,amount)});
+    function closeModal(){modal.classList.remove("show");updateLimitUI()}
+    window.addEventListener('focus',()=>{updateLimitUI()});
+    updateLimitUI();
+  </script>
+</body>
+</html>
